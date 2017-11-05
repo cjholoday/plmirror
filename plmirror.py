@@ -16,6 +16,17 @@ def main(playlist_names):
         print("Error: config.json not found", file=sys.stderr)
         sys.exit(1)
 
+    # check that playlist names have a configuration and url before starting
+    for pl_name in playlist_names:
+        print(pl_name)
+        if pl_name not in config['playlists']:
+            print("Error: playlist with name '{}' not found in config.json"
+                  .format(pl_name))
+            sys.exit(1)
+        elif 'url' not in config['playlists'][pl_name]:
+            print("Error playlist with name '{}' has no configured url"
+                  .format(pl_name))
+            sys.exit(1)
 
     print(config)
     print(playlist_names)
