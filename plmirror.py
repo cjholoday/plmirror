@@ -16,7 +16,7 @@ def mirror_playlist(pl_name, pl_config):
 
 
     try:
-        print("\tDiscovering new videos...")
+        print("[plmirror] Discovering new videos...")
         cmd = ['youtube-dl', pl_config['url']]
 
         # only notify us of new videos
@@ -34,7 +34,7 @@ def mirror_playlist(pl_name, pl_config):
 
     # We're done if there are no new videos
     if not raw_ids:
-        print("\tNo new videos for playlist '{}'".format(pl_name))
+        print("[plmirror] No new videos for playlist '{}'".format(pl_name))
         return
 
     print(raw_ids)
@@ -46,7 +46,7 @@ def mirror_playlist(pl_name, pl_config):
     print(vid_ids)
     with open(os.path.join(mirror_dir, 'archive.txt'), 'a') as archive:
         for vid_id in vid_ids:
-            print("\tDownloading video with id '{}'".format(vid_id))
+            print("[plmirror] Downloading video with id '{}'".format(vid_id))
             output_format = OUTPUT_TEMPLATE.format(pl_name=pl_name, pl_idx=pl_idx)
             cmd = ['youtube-dl', 'https://www.youtube.com/watch?v={}'.format(vid_id)]
             cmd.extend(['-o', output_format])
@@ -58,7 +58,7 @@ def mirror_playlist(pl_name, pl_config):
             try:
                 subprocess.check_call(cmd)
             except subprocess.CalledProcessError:
-                print("\tError: failed to mirror video with id '{}'".format(vid_id))
+                print("[plmirror] Error: failed to mirror video with id '{}'".format(vid_id))
                 continue
 
             # commit this video to our mirror
@@ -71,28 +71,28 @@ def main():
         with open('config.json') as config_file:
             config = json.load(config_file)
     except FileNotFoundError:
-        print("Error: config.json not found", file=sys.stderr)
+        print("[plmirror] Error: config.json not found", file=sys.stderr)
         sys.exit(1)
 
     validate_config(config)
 
     for pl_name in config['playlists']:
-        print("Mirroring playlist '{}'".format(pl_name))
+        print("[plmirror] Mirroring playlist '{}'".format(pl_name))
         mirror_playlist(pl_name, config['playlists'][pl_name])
 
 def validate_config(config):
     playlists = config['playlists']
     for pl_name in playlists:
         if 'url' not in playlists[pl_name]:
-            print("Error: playlist with name '{}' has no configured url"
+            print("[plmirror] Error: playlist with name '{}' has no configured url"
                   .format(pl_name), file=sys.stderr)
             sys.exit(1)
         if 'type' not in playlists[pl_name]:
-            print("Error: playlist '{}' has no type (options: 'audio' or 'video')"
-                  .format(pl_name), file=sys.stderr)
+            print("[plmirror] Error: playlist '{}' has no type "
+                    "(options: 'audio' or 'video')" .format(pl_name), file=sys.stderr)
             sys.exit(1)
         if playlists[pl_name]['type'] not in ['audio', 'video']:
-            print("Error: playlist '{}' has an invalid type '{}' "
+            print("[plmirror] Error: playlist '{}' has an invalid type '{}' "
                     "(options: 'audio' or 'video')", file=sys.stderr)
             sys.exit(1)
 
