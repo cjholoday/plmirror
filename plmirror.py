@@ -25,25 +25,22 @@ def mirror_playlist(pl_name, pl_config):
         # do not download anything, only get video id's
         cmd.append('--get-id')
 
-        # TODO: handle this
-        cmd.append('--ignore-errors')
         raw_ids = subprocess.check_output(cmd)
     except subprocess.CalledProcessError as err:
-        # TODO: test/handle this
-        raw_ids = err.output
+        print("[plmirror] Error while contacting youtube for new videos",
+              file=sys.stderr)
+        sys.exit(1)
 
     # We're done if there are no new videos
     if not raw_ids:
         print("[plmirror] No new videos for playlist '{}'".format(pl_name))
         return
 
-    print(raw_ids)
     vid_ids = raw_ids.decode('utf-8').strip().split('\n')
 
     # TODO: discover highest playlist number
     pl_idx = 0
     
-    print(vid_ids)
     with open(os.path.join(mirror_dir, 'archive.txt'), 'a') as archive:
         for vid_id in vid_ids:
             print("[plmirror] Downloading video with id '{}'".format(vid_id))
