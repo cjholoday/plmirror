@@ -38,8 +38,26 @@ def mirror_playlist(pl_name, pl_config):
 
     vid_ids = raw_ids.decode('utf-8').strip().split('\n')
 
-    # TODO: discover highest playlist number
-    pl_idx = 0
+    # discover highest playlist index
+    pl_idx = -1
+    for entry in os.listdir(mirror_dir):
+        if len(entry) < 3:
+            print("[plmirror] Rogue file '{}' in playlist directory '{}'"
+                  .format(entry, mirror_dir), file=sys.stderr)
+            sys.exit(1)
+
+        # We only care about playlist entries for determining the idx
+        if entry == 'archive.txt':
+            continue
+
+        try:
+            pl_idx = max(int(entry[:3]), pl_idx)
+        except ValueError:
+            print("[plmirror] Rogue file '{}' in playlist directory '{}'"
+                  .format(entry, mirror_dir), file=sys.stderr)
+            sys.exit(1)
+    pl_idx += 1
+
     
     with open(os.path.join(mirror_dir, 'archive.txt'), 'a') as archive:
         for vid_id in vid_ids:
