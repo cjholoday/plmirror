@@ -19,6 +19,9 @@ def mirror_playlist(pl_name, pl_config):
         print("[plmirror] Discovering new videos...")
         cmd = ['youtube-dl', pl_config['url']]
 
+        # ignore videos that have been deleted / are unavailable
+        cmd.extend(['--ignore-errors'])
+
         # only notify us of new videos
         cmd.extend(['--download-archive', os.path.join(mirror_dir, 'archive.txt')])
 
@@ -27,9 +30,9 @@ def mirror_playlist(pl_name, pl_config):
 
         raw_ids = subprocess.check_output(cmd)
     except subprocess.CalledProcessError as err:
-        print("[plmirror] Error while contacting youtube for new videos",
-              file=sys.stderr)
-        sys.exit(1)
+        # youtube-dl with throw an error if a video was deleted. We must ignore
+        # it if we want to be tolerant of missing videos
+        raw_ids = err.output
 
     # We're done if there are no new videos
     if not raw_ids:
@@ -60,7 +63,8 @@ def mirror_playlist(pl_name, pl_config):
 
     
     with open(os.path.join(mirror_dir, 'archive.txt'), 'a') as archive:
-        for vid_id in vid_ids:
+        # download backwards so that videos are ordered like they are on youtube
+        for vid_id in reversed(vid_ids):
             print("[plmirror] Downloading video with id '{}'".format(vid_id))
             output_format = OUTPUT_TEMPLATE.format(pl_name=pl_name, pl_idx=pl_idx)
             cmd = ['youtube-dl', 'https://www.youtube.com/watch?v={}'.format(vid_id)]
