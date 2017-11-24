@@ -6,7 +6,7 @@ import os
 
 # Used as a download template for youtube-dl. pl_name and pl_idx are substituted
 # by plmirror while the title, uploader_id, and ext are handled by youtube-dl
-OUTPUT_TEMPLATE = "{pl_name}/{pl_idx:03d}__%(title)s__%(uploader_id)s.%(ext)s"
+OUTPUT_TEMPLATE = "{pl_name}/{pl_idx:03d}__%(title)s__%(uploader)s__%(id)s.%(ext)s"
 
 def mirror_playlist(pl_name, pl_config):
     # create our playlist directory if it doesn't exist already
@@ -30,7 +30,7 @@ def mirror_playlist(pl_name, pl_config):
 
         raw_ids = subprocess.check_output(cmd)
     except subprocess.CalledProcessError as err:
-        # youtube-dl with throw an error if a video was deleted. We must ignore
+        # youtube-dl will throw an error if a video was deleted. We must ignore
         # it if we want to be tolerant of missing videos
         raw_ids = err.output
 
