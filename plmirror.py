@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 import json
 import subprocess
@@ -8,12 +9,12 @@ import os
 # by plmirror while the title, uploader_id, and ext are handled by youtube-dl
 OUTPUT_TEMPLATE = "{pl_name}/{pl_idx:03d}__%(title)s__%(uploader)s__%(id)s.%(ext)s"
 
+
 def mirror_playlist(pl_name, pl_config):
     # create our playlist directory if it doesn't exist already
     mirror_dir = os.path.join(os.getcwd(), pl_name)
     if not os.path.exists(mirror_dir):
         os.makedirs(mirror_dir)
-
 
     try:
         print("[plmirror] Discovering new videos...")
@@ -23,7 +24,8 @@ def mirror_playlist(pl_name, pl_config):
         cmd.extend(['--ignore-errors'])
 
         # only notify us of new videos
-        cmd.extend(['--download-archive', os.path.join(mirror_dir, 'archive.txt')])
+        cmd.extend(
+            ['--download-archive', os.path.join(mirror_dir, 'archive.txt')])
 
         # do not download anything, only get video id's
         cmd.append('--get-id')
@@ -61,13 +63,14 @@ def mirror_playlist(pl_name, pl_config):
             sys.exit(1)
     pl_idx += 1
 
-    
     with open(os.path.join(mirror_dir, 'archive.txt'), 'a') as archive:
         # download backwards so that videos are ordered like they are on youtube
         for vid_id in reversed(vid_ids):
             print("[plmirror] Downloading video with id '{}'".format(vid_id))
-            output_format = OUTPUT_TEMPLATE.format(pl_name=pl_name, pl_idx=pl_idx)
-            cmd = ['youtube-dl', 'https://www.youtube.com/watch?v={}'.format(vid_id)]
+            output_format = OUTPUT_TEMPLATE.format(
+                pl_name=pl_name, pl_idx=pl_idx)
+            cmd = ['youtube-dl',
+                   'https://www.youtube.com/watch?v={}'.format(vid_id)]
             cmd.extend(['-o', output_format])
             if pl_config['type'] == 'audio':
                 cmd.append('--extract-audio')
@@ -77,12 +80,14 @@ def mirror_playlist(pl_name, pl_config):
             try:
                 subprocess.check_call(cmd)
             except subprocess.CalledProcessError:
-                print("[plmirror] Error: failed to mirror video with id '{}'".format(vid_id))
+                print("[plmirror] Error: failed to mirror video with id '{}'"
+                      .format(vid_id))
                 continue
 
             # commit this video to our mirror
             pl_idx += 1
             archive.write('youtube {}\n'.format(vid_id))
+
 
 def main():
     try:
@@ -99,6 +104,7 @@ def main():
         print("[plmirror] Mirroring playlist '{}'".format(pl_name))
         mirror_playlist(pl_name, config['playlists'][pl_name])
 
+
 def validate_config(config):
     playlists = config['playlists']
     for pl_name in playlists:
@@ -108,12 +114,13 @@ def validate_config(config):
             sys.exit(1)
         if 'type' not in playlists[pl_name]:
             print("[plmirror] Error: playlist '{}' has no type "
-                    "(options: 'audio' or 'video')" .format(pl_name), file=sys.stderr)
+                  "(options: 'audio' or 'video')" .format(pl_name), file=sys.stderr)
             sys.exit(1)
         if playlists[pl_name]['type'] not in ['audio', 'video']:
             print("[plmirror] Error: playlist '{}' has an invalid type '{}' "
-                    "(options: 'audio' or 'video')", file=sys.stderr)
+                  "(options: 'audio' or 'video')", file=sys.stderr)
             sys.exit(1)
+
 
 if __name__ == '__main__':
     main()
