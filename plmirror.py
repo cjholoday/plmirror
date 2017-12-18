@@ -77,6 +77,9 @@ def mirror_playlist(pl_name, pl_config):
                 cmd.append('--prefer-ffmpeg')
                 cmd.extend(['--audio-format', 'mp3'])
                 cmd.extend(['--audio-quality', '0'])
+            else:
+                cmd.extend(['--recode-video', 'mp4'])
+
             try:
                 subprocess.check_call(cmd)
             except subprocess.CalledProcessError:

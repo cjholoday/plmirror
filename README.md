@@ -17,5 +17,5 @@ If ```plmirror``` is run with the same ```config.json``` only newly added videos
 
 ```
 $ cd plmirror/example
-$ python3 plmirror.py
+$ python3 ../plmirror.py
 ```
