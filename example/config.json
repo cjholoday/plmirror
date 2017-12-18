@@ -1,0 +1,12 @@
+{
+    "playlists": {
+        "audio_playlist": {
+            "type": "audio",
+            "url": "https://www.youtube.com/playlist?list=PLwLMMKZ3xLsvaXyIIjoRQo5HcGnQEJ1vQ"
+        },
+        "video_playlist": {
+            "type": "video",
+            "url": "https://www.youtube.com/playlist?list=PLwLMMKZ3xLsuA29qylSTz3NngFd-fgebx"
+        }
+    }
+}
